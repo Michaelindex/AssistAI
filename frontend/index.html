@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistente de Produtividade</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Lista de Tarefas -->
+        <div class="tasks-column" id="pendingTasks">
+            <h2>Tarefas</h2>
+            <ul id="taskList"></ul>
+        </div>
+
+        <!-- Formulário para Adicionar Tarefas -->
+        <div class="form-column">
+            <h1>Assistente de Produtividade</h1>
+            <form id="taskForm">
+                <input type="text" id="taskTitle" placeholder="Título da Tarefa" required>
+                <textarea id="taskDescription" placeholder="Descrição da Tarefa"></textarea>
+                <button type="submit">Adicionar Tarefa</button>
+            </form>
+        </div>
+
+        <!-- Lista de Tarefas Concluídas -->
+        <div class="tasks-column" id="completedTasks">
+            <h2>Concluídas</h2>
+            <ul id="completedList"></ul>
+        </div>
+    </div>
+</body>
+</html>
