@@ -1,3 +1,5 @@
+/* frontend/styles.css */
+
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -6,97 +8,101 @@ body {
     align-items: center;
     height: 100vh;
     background-color: #f5f5f5;
-}
-
-.container {
+  }
+  
+  .container {
     display: flex;
     width: 100%;
     max-width: 1200px;
     height: 90%;
-}
-
-.tasks-column, .form-column {
+  }
+  
+  .tasks-column,
+  .form-column {
     flex: 1;
     padding: 20px;
     border: 1px solid #ddd;
     background-color: white;
     overflow-y: auto;
-}
-
-.tasks-column {
+  }
+  
+  .tasks-column {
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-.form-column {
+  }
+  
+  .form-column {
     flex: 0.8;
     display: flex;
     flex-direction: column;
     justify-content: center;
-}
-
-h1, h2 {
+  }
+  
+  h1,
+  h2 {
     margin-bottom: 20px;
-}
-
-form {
+  }
+  
+  form {
     display: flex;
     flex-direction: column;
     gap: 10px;
-}
-
-input, textarea, button {
+  }
+  
+  input,
+  textarea,
+  button {
     padding: 10px;
     font-size: 16px;
-}
-
-button {
+  }
+  
+  button {
     cursor: pointer;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
-}
-
-ul {
+  }
+  
+  ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
     width: 100%;
-}
-
-li {
+  }
+  
+  li {
     margin: 10px 0;
     padding: 10px;
     background-color: #f5f5f5;
     border-radius: 8px;
     cursor: grab;
-}
-
-li.dragging {
+  }
+  
+  li.dragging {
     opacity: 1;
-    background-color: #bdc3c7; /* Indicando que está sendo arrastado */
-}
-
-#pendingTasks, #completedTasks {
+    background-color: #bdc3c7; /* Indica que está sendo arrastado */
+  }
+  
+  #pendingTasks,
+  #completedTasks {
     margin: 20px;
     padding: 10px;
     border: 2px solid #ddd;
     border-radius: 10px;
     min-height: 300px;
-}
-
-#pendingTasks {
+  }
+  
+  #pendingTasks {
     background-color: #e7f7fc;
-}
-
-#completedTasks {
+  }
+  
+  #completedTasks {
     background-color: #eaf0e7;
-}
-
-
-.delete-btn {
+  }
+  
+  .delete-btn {
     margin-left: 10px;
     background-color: #e74c3c;
     color: white;
@@ -105,8 +111,9 @@ li.dragging {
     padding: 5px 10px;
     cursor: pointer;
     font-size: 14px;
-}
-
-.delete-btn:hover {
+  }
+  
+  .delete-btn:hover {
     background-color: #c0392b;
-}
+  }
+  

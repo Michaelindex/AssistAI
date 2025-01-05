@@ -1,35 +1,38 @@
+<!-- frontend/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistente de Produtividade</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Assistente de Produtividade</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="script.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Lista de Tarefas -->
-        <div class="tasks-column" id="pendingTasks">
-            <h2>Tarefas</h2>
-            <ul id="taskList"></ul>
-        </div>
-
-        <!-- Formulário para Adicionar Tarefas -->
-        <div class="form-column">
-            <h1>Assistente de Produtividade</h1>
-            <form id="taskForm">
-                <input type="text" id="taskTitle" placeholder="Título da Tarefa" required>
-                <textarea id="taskDescription" placeholder="Descrição da Tarefa"></textarea>
-                <button type="submit">Adicionar Tarefa</button>
-            </form>
-        </div>
-
-        <!-- Lista de Tarefas Concluídas -->
-        <div class="tasks-column" id="completedTasks">
-            <h2>Concluídas</h2>
-            <ul id="completedList"></ul>
-        </div>
+  <div class="container">
+    <!-- Coluna de tarefas pendentes -->
+    <div class="tasks-column">
+      <h2>Tarefas</h2>
+      <!-- Use UL com ID "pendingTasks" -->
+      <ul id="pendingTasks"></ul>
     </div>
+
+    <!-- Formulário -->
+    <div class="form-column">
+      <h1>Assistente de Produtividade</h1>
+      <form id="taskForm">
+        <input type="text" id="taskTitle" placeholder="Título da Tarefa" required />
+        <textarea id="taskDescription" placeholder="Descrição da Tarefa"></textarea>
+        <button type="submit">Adicionar Tarefa</button>
+      </form>
+    </div>
+
+    <!-- Coluna de tarefas concluídas -->
+    <div class="tasks-column">
+      <h2>Concluídas</h2>
+      <!-- Use UL com ID "completedTasks" -->
+      <ul id="completedTasks"></ul>
+    </div>
+  </div>
 </body>
 </html>
