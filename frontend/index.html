@@ -1,39 +1,49 @@
-<!-- frontend/index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Assistente de Produtividade</title>
+
+  <!-- Fonte Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" 
+    rel="stylesheet"
+  />
+
   <link rel="stylesheet" href="styles.css" />
   <script src="script.js" defer></script>
 </head>
 <body>
   <div class="container">
-    
-    <!-- Coluna Esquerda: Tarefas -->
-    <div class="tasks-column">
+
+    <!-- Coluna Tarefas -->
+    <div class="column tasks-column">
       <h2>Tarefas</h2>
       <ul id="pendingTasks"></ul>
     </div>
 
-    <!-- Coluna do Formulário (transparente) -->
-    <div class="form-column">
+    <!-- Coluna Formulário -->
+    <div class="column form-column">
       <h1>Assistente de Produtividade</h1>
       <form id="taskForm">
+        <!-- Sem labels, só placeholders -->
         <input type="text" id="taskTitle" placeholder="Título da Tarefa" required />
         <textarea id="taskDescription" placeholder="Descrição da Tarefa"></textarea>
-        
-        <!-- Campo para cor do card -->
-        <label for="taskColor">Cor do Card:</label>
-        <input type="color" id="taskColor" value="#ffffff" />
+
+        <div class="color-wrapper">
+          <span>Cor do card:</span>
+          <input type="color" id="taskColor" value="#ffffff" />
+        </div>
 
         <button type="submit">Adicionar Tarefa</button>
       </form>
     </div>
 
-    <!-- Coluna Direita: Concluídas -->
-    <div class="tasks-column">
+    <!-- Coluna Concluídas -->
+    <div class="column tasks-column">
       <h2>Concluídas</h2>
       <ul id="completedTasks"></ul>
     </div>

@@ -1,15 +1,15 @@
-/* frontend/styles.css */
-
-/* Elimina margens padrão e scrollbar horizontal */
+/* ==============================
+   RESET e CONFIGURAÇÕES BÁSICAS
+============================== */
 html, body {
     margin: 0;
     padding: 0;
-    overflow-x: hidden; /* some com a barra horizontal */
-    font-family: Arial, sans-serif;
     height: 100vh;
+    overflow: hidden;  /* Não rolar a página, pois cada coluna terá rolagem interna */
+    font-family: 'Inter', sans-serif;
   }
   
-  /* Imagem de fundo em toda a tela */
+  /* Fundo */
   body {
     background: url("https://picsum.photos/id/1018/1920/1080") no-repeat center center fixed;
     background-size: cover;
@@ -18,116 +18,254 @@ html, body {
     align-items: center;
   }
   
-  /* Container principal */
+  /* ==============================
+     CONTAINER PRINCIPAL (3 colunas)
+  ============================== */
   .container {
-    display: flex;
     width: 100%;
-    max-width: 1200px;
-    height: 90%;
-  }
-  
-  /* Colunas de Tarefas e Concluídas: efeito “vidro” */
-  .tasks-column {
-    flex: 1;
-    margin: 10px;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 10px;
-    padding: 20px;
-  
+    padding: 2vw;               /* Menos padding nas bordas */
+    box-sizing: border-box;
     display: flex;
-    flex-direction: column;
-    overflow-y: auto; /* somente rolagem vertical */
-    position: relative; /* para z-index se precisar */
-  }
-  
-  /* Expande o UL para ocupar a coluna toda, evitando área “não dropável” */
-  .tasks-column ul {
-    flex: 1; 
-    /* se quiser no mínimo X altura: min-height: 400px; */
-    margin: 0;
-    padding: 0;
-  }
-  
-  /* Coluna do Formulário: transparente */
-  .form-column {
-    flex: 0.8;
-    margin: 10px;
-    background: transparent;
-    display: flex;
-    flex-direction: column;
+    gap: 2vw;                   /* Espaço horizontal entre colunas */
     justify-content: center;
-    overflow-y: auto;
+    align-items: flex-start;    /* Alinha ao topo */
+    height: 90vh;               /* Altura fixa (ou algo similar) */
+  }
+  
+  /* Cada coluna tem 30% */
+  .column {
+    width: 30%;
+    height: 100%;
+    box-sizing: border-box;
+    border-radius: 29px; /* 10: pede 29px de radius */
+    overflow: hidden;    /* se algo passar, iremos controlar no interior */
+  }
+  
+  /* ==============================
+     COLUNAS DE TAREFAS e CONCLUÍDAS
+  ============================== */
+  .tasks-column {
+    background: rgba(0,0,0,0.4); /* opacidade 0.4 e blur */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  
     padding: 20px;
-  }
+    position: relative;
+    overflow: hidden; /* esconde se tiver algo extravasando */
   
-  /* Títulos em branco */
-  h1, h2 {
-    margin-bottom: 20px;
-    color: #fff;
-  }
-  
-  /* Formulário: espaçamento */
-  form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
   }
   
-  label {
+  /* Rola internamente os <ul> */
+  .tasks-column ul {
+    margin: 0; 
+    padding: 0;
+    overflow-y: auto;   /* rolagem vertical só na lista de tarefas */
+    flex: 1;           /* ocupa todo o espaço disponível */
+  }
+  
+  /* Título das colunas (Tarefas, Concluídas):
+     - CENTRALIZADO
+     - super-bold
+     - sombra difusa
+   */
+  .tasks-column h2 {
+    text-align: center;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 4px #000; 
+    margin: 0 0 20px 0;
+  }
+  
+  /* ==============================
+     FORMULÁRIO
+  ============================== */
+  .form-column {
+    background: none; /* sem cor, pra mostrar o fundo */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* Título do formulário:
+     - shadow difuso completo
+     - super-bold
+     - centralizado
+  */
+  .form-column h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 6px #000; /* difuso atrás da letra */
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  /* Ajustes do <form> */
+  #taskForm {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  /* Inputs e textarea:
+     - border 2px preta
+     - radius 29px
+     - background meio translúcido
+  */
+  #taskForm input[type="text"],
+  #taskForm textarea {
+    background: rgba(255,255,255,0.5);
+    border: 2px solid #000;
+    border-radius: 29px;
+    color: #000;
+    padding: 10px;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  
+  /* Textarea maior */
+  #taskForm textarea {
+    min-height: 80px;
+    resize: none; /* se quiser bloquear redimensionamento */
+  }
+  
+  /* Wrapper para a cor e label “Cor do card” */
+  .color-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    color: #fff;
+    text-shadow: 0 0 2px #000;
+  }
+  
+  /* Input type color */
+  #taskColor {
+    border: 2px solid #000;
+    border-radius: 29px;
+    width: 50px;
+    height: 40px;
+    padding: 0;
+    cursor: pointer;
+    background: #fff;
+  }
+  
+  /* Botão Adicionar Tarefa
+     - cor #1D1645
+     - texto branco e bold
+     - borda 2px preta, radius 29px
+  */
+  #taskForm button {
+    background-color: #1D1645;
+    border: 2px solid #000;
+    border-radius: 29px;
     color: #fff;
     font-weight: bold;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 1rem;
   }
   
-  /* Inputs e botão */
-  input, textarea, button {
+  #taskForm button:hover {
+    opacity: 0.9;
+  }
+  
+  /* ==============================
+     CARDS DE TAREFA
+  ============================== */
+  .task-card {
+    display: flex;
+    border: 2px solid #000;
+    border-radius: 29px;
+    margin-bottom: 10px;
     padding: 10px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: none;
+    position: relative;
+    overflow: hidden; /* se algo passar, cortamos */
   }
   
-  button {
-    cursor: pointer;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
+  /* Div que agrupa Título + Descrição (65% do card) */
+  .task-info {
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 5px;
   }
   
-  /* Lista de tarefas */
-  ul {
-    list-style-type: none;
+  /* Título e Descrição truncados */
+  .task-title {
+    font-weight: 700;  /* bem forte, mas não 900 */
+    color: #000;
+    margin: 0;
+    /* Truncar em 1 linha */
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
   }
   
-  /* Card de tarefa (li) */
-  li {
-    margin: 10px 0;
-    padding: 15px;
-    border-radius: 8px;
+  .task-desc {
+    color: #000;
+    margin: 0;
+    /* Truncar em 2 linhas */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+  }
+  
+  /* Div que agrupa handle + botão deletar (35% do card) */
+  .task-actions {
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center; /* centraliza no eixo transversal */
+  }
+  
+  /* Handle: a parte arrastável com pontinhos */
+  .drag-handle {
+    width: 80px;
+    height: 40px;
+    background: url("https://img.freepik.com/vetores-gratis/fundo-de-polca-vector-com-pequenos-pontos_1017-13972.jpg");
+    background-size: cover;
+    border: 2px solid #000;
+    border-radius: 29px;
     cursor: grab;
-    background-color: #f5f5f5; /* Cor padrão (será substituída via JS se “color” != #fff) */
   }
   
-  /* No momento do arraste */
-  li.dragging {
-    opacity: 1;
-    background-color: #bdc3c7;
-  }
-  
-  /* Botão Excluir */
+  /* Botão DELETAR (embaixo do handle) */
   .delete-btn {
-    margin-top: 10px;
     background-color: #e74c3c;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 7px 12px;
+    border: 2px solid #000;
+    border-radius: 29px;
+    color: #fff;
+    font-weight: bold;
     cursor: pointer;
-    font-size: 14px;
+    padding: 0.5rem 1rem;
   }
+  
   .delete-btn:hover {
-    background-color: #c0392b;
+    opacity: 0.9;
+  }
+  
+  /* Card color com opacidade 0.7 => gerenciado via JS, 
+     mas se nenhuma cor for definida, fica fallback #f5f5f5
+  */
+  
+  /* Ao arrastar o <li>, estilizamos com .dragging */
+  .dragging {
+    opacity: 0.6;
   }
   

@@ -1,11 +1,12 @@
-// frontend/script.js
+// script.js
 
-let draggedTask = null;
+let draggedTask = null;        // Qual tarefa do BD estamos arrastando
+let draggedItemElement = null; // Qual <li> corresponde a essa tarefa
 
 const pendingTasks = document.getElementById('pendingTasks');
 const completedTasks = document.getElementById('completedTasks');
 
-// Carrega tarefas do backend
+// ============== BUSCAR TAREFAS DO BACK-END ==============
 async function fetchTasks() {
   try {
     const response = await fetch('http://localhost:3000/tasks');
@@ -15,13 +16,13 @@ async function fetchTasks() {
     pendingTasks.innerHTML = '';
     completedTasks.innerHTML = '';
 
-    // Insere cada tarefa em pending ou completed
+    // Cria e insere cards
     tasks.forEach(task => {
-      const listItem = createTaskCard(task);
+      const cardElement = createTaskCard(task);
       if (task.completed) {
-        completedTasks.appendChild(listItem);
+        completedTasks.appendChild(cardElement);
       } else {
-        pendingTasks.appendChild(listItem);
+        pendingTasks.appendChild(cardElement);
       }
     });
   } catch (error) {
@@ -29,83 +30,116 @@ async function fetchTasks() {
   }
 }
 
-// Cria o card <li> para cada tarefa
+// ============== CRIAR O CARD DE TAREFA ==============
 function createTaskCard(task) {
-  const listItem = document.createElement('li');
-  listItem.textContent = task.title;
-  listItem.draggable = true;
+  // <li> container do card
+  const li = document.createElement('li');
+  li.classList.add('task-card');
 
-  // Se existir 'color' no task, aplica ao li
-  listItem.style.backgroundColor = task.color || '#f5f5f5';
+  // Converter hex para RGBA com opacidade 0.7
+  const cardColor = hexToRgba(task.color || '#ffffff', 0.7);
+  li.style.backgroundColor = cardColor;
 
-  // Descrição
-  const desc = document.createElement('p');
-  desc.textContent = task.description;
-  desc.style.marginTop = '10px';
+  // Área esquerda (65%): título e descrição
+  const infoDiv = document.createElement('div');
+  infoDiv.classList.add('task-info');
 
-  // Botão Excluir
-  const deleteButton = document.createElement('button');
-  deleteButton.textContent = 'Excluir';
-  deleteButton.classList.add('delete-btn');
-  deleteButton.addEventListener('click', async () => {
+  // Título (1 linha, truncado)
+  const titleEl = document.createElement('p');
+  titleEl.classList.add('task-title');
+  titleEl.textContent = task.title;
+
+  // Descrição (2 linhas, truncado)
+  const descEl = document.createElement('p');
+  descEl.classList.add('task-desc');
+  descEl.textContent = task.description;
+
+  infoDiv.appendChild(titleEl);
+  infoDiv.appendChild(descEl);
+
+  // Área direita (35%): handle + botão deletar
+  const actionsDiv = document.createElement('div');
+  actionsDiv.classList.add('task-actions');
+
+  // Handle (arrastável)
+  const dragHandle = document.createElement('div');
+  dragHandle.classList.add('drag-handle');
+  dragHandle.draggable = true; // SÓ a handle é arrastável
+
+  // Eventos de drag na handle
+  dragHandle.addEventListener('dragstart', e => {
+    draggedTask = task;
+    draggedItemElement = li; 
+    li.classList.add('dragging');
+  });
+  dragHandle.addEventListener('dragend', e => {
+    draggedTask = null;
+    draggedItemElement = null;
+    li.classList.remove('dragging');
+  });
+
+  // Botão Deletar
+  const deleteBtn = document.createElement('button');
+  deleteBtn.classList.add('delete-btn');
+  deleteBtn.textContent = 'DELETAR';
+  deleteBtn.addEventListener('click', async () => {
     try {
       await fetch(`http://localhost:3000/tasks/${task._id}`, { method: 'DELETE' });
       fetchTasks();
-    } catch (error) {
-      console.error('Erro ao excluir tarefa:', error);
+    } catch (err) {
+      console.error('Erro ao excluir tarefa:', err);
     }
   });
 
-  listItem.appendChild(desc);
-  listItem.appendChild(deleteButton);
+  actionsDiv.appendChild(dragHandle);
+  actionsDiv.appendChild(deleteBtn);
 
-  // Eventos de drag
-  listItem.addEventListener('dragstart', () => {
-    draggedTask = task;
-    listItem.classList.add('dragging');
-  });
+  // Monta o card
+  li.appendChild(infoDiv);
+  li.appendChild(actionsDiv);
 
-  listItem.addEventListener('dragend', () => {
-    draggedTask = null;
-    listItem.classList.remove('dragging');
-  });
-
-  return listItem;
+  return li;
 }
 
-// Para cada lista (pending e completed), adicionamos dragover e drop
+// ============== FUNÇÃO DE HEX => RGBA COM OPACIDADE ==============
+function hexToRgba(hex, alpha = 1) {
+  // Remove '#' se tiver
+  hex = hex.replace('#', '');
+  // parse r,g,b
+  let r = parseInt(hex.substring(0,2), 16);
+  let g = parseInt(hex.substring(2,4), 16);
+  let b = parseInt(hex.substring(4,6), 16);
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// ============== DRAG & DROP NAS LISTAS ==============
 [pendingTasks, completedTasks].forEach(list => {
-  // Permite soltar dentro da lista
   list.addEventListener('dragover', e => {
     e.preventDefault();
-
     const afterElement = getDragAfterElement(list, e.clientY);
-    const draggingItem = document.querySelector('.dragging');
-
-    // Se não houver elemento após, anexa no final
     if (!afterElement) {
-      list.appendChild(draggingItem);
+      list.appendChild(draggedItemElement);
     } else {
-      list.insertBefore(draggingItem, afterElement);
+      list.insertBefore(draggedItemElement, afterElement);
     }
   });
 
   list.addEventListener('drop', e => {
     e.preventDefault();
-    // Se for a lista 'completedTasks', definimos completed = true
-    const isCompleted = (list === completedTasks);
-    updateTaskCompletion(draggedTask, isCompleted);
+    if (draggedTask) {
+      const isCompleted = (list === completedTasks);
+      updateTaskCompletion(draggedTask, isCompleted);
+    }
   });
 });
 
-// Função para obter posição do item na lista
+// Função para inserir o card na posição correta (reordenar)
 function getDragAfterElement(container, y) {
-  const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
-
-  return draggableElements.reduce((closest, child) => {
+  const cards = [...container.querySelectorAll('.task-card:not(.dragging)')];
+  return cards.reduce((closest, child) => {
     const box = child.getBoundingClientRect();
-    const offset = y - box.top - (box.height / 2);
-
+    const offset = y - box.top - box.height/2;
     if (offset < 0 && offset > closest.offset) {
       return { offset, element: child };
     } else {
@@ -114,30 +148,24 @@ function getDragAfterElement(container, y) {
   }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-// Atualiza a tarefa no banco (muda 'completed')
+// ============== ATUALIZAR TAREFA (COMPLETED) NO BACKEND ==============
 async function updateTaskCompletion(task, completed) {
   if (!task) return;
-
   try {
     if (task.completed !== completed) {
-      const response = await fetch(`http://localhost:3000/tasks/${task._id}`, {
+      await fetch(`http://localhost:3000/tasks/${task._id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ completed }),
+        body: JSON.stringify({ completed })
       });
-
-      if (response.ok) {
-        fetchTasks();
-      } else {
-        console.error('Erro ao atualizar tarefa.');
-      }
+      fetchTasks();
     }
-  } catch (error) {
-    console.error('Erro ao atualizar tarefa:', error);
+  } catch (err) {
+    console.error('Erro ao atualizar tarefa:', err);
   }
 }
 
-// Cria uma nova tarefa com cor, título e descrição
+// ============== CRIAR NOVA TAREFA (FORM) ==============
 document.getElementById('taskForm').addEventListener('submit', async e => {
   e.preventDefault();
 
@@ -146,22 +174,17 @@ document.getElementById('taskForm').addEventListener('submit', async e => {
   const color = document.getElementById('taskColor').value;
 
   try {
-    const response = await fetch('http://localhost:3000/tasks', {
+    const res = await fetch('http://localhost:3000/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        title, 
-        description,
-        color,
-        completed: false 
-      }),
+      body: JSON.stringify({ title, description, color, completed: false })
     });
-
-    if (response.ok) {
-      // Limpa o formulário
+    if (res.ok) {
+      // Limpa o form
       document.getElementById('taskTitle').value = '';
       document.getElementById('taskDescription').value = '';
       document.getElementById('taskColor').value = '#ffffff';
+
       fetchTasks();
     } else {
       console.error('Erro ao adicionar tarefa.');
@@ -171,5 +194,5 @@ document.getElementById('taskForm').addEventListener('submit', async e => {
   }
 });
 
-// Ao carregar a página, busca as tarefas
+// ============== AO CARREGAR A PÁGINA ==============
 document.addEventListener('DOMContentLoaded', fetchTasks);
