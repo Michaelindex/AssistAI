@@ -1,0 +1,4 @@
+Madrugada 05/01 -
+
+Faltam alguams modificações no estilo do desktop, em relação ao design feito no figma.
+Após as modificações do desktop precisamos partir para as funcionalidades e toda a estrutura do mobile, feita no figma também.
