@@ -2,7 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const Task = require('./models/Task'); // Importa o modelo já pronto
+const Task = require('./models/Task');
 
 const app = express();
 const PORT = 3000;
@@ -24,13 +24,8 @@ mongoose.connect(mongoURI)
 app.post('/tasks', async (req, res) => {
   try {
     const { title, description, color } = req.body;
-    const newTask = new Task({ 
-      title, 
-      description,
-      color
-    });
+    const newTask = new Task({ title, description, color });
     await newTask.save();
-
     res.status(201).json({ message: 'Tarefa adicionada com sucesso!' });
   } catch (error) {
     console.error('Erro ao salvar tarefa:', error);

@@ -1,27 +1,61 @@
 // frontend/script.js
 
+/* Referências Globais */
 let draggedTask = null;
 
-const pendingTasks = document.getElementById('pendingTasks');
-const completedTasks = document.getElementById('completedTasks');
+// Listas desktop
+const pendingTasks = document.getElementById('pendingTasks');   // "Tarefas"
+const completedTasks = document.getElementById('completedTasks'); // "Concluídas"
 
-// Carrega tarefas do backend
+// Popups e overlay
+const addTaskPopup = document.getElementById('addTaskPopup');
+const concludedTasksPopup = document.getElementById('concludedTasksPopup');
+const overlay = document.getElementById('overlay');
+
+// Botões de abrir/fechar popup
+const btnMobileAddTask = document.getElementById('btnMobileAddTask');
+const closeAddPopup = document.getElementById('closeAddPopup');
+
+const btnShowConcluded = document.getElementById('btnShowConcluded');
+const closeConcludedPopup = document.getElementById('closeConcludedPopup');
+
+/* --- EVENTOS DE POPUP (MOBILE) --- */
+btnMobileAddTask.addEventListener('click', () => {
+  addTaskPopup.classList.add('show');
+  overlay.classList.add('show');
+});
+closeAddPopup.addEventListener('click', () => {
+  addTaskPopup.classList.remove('show');
+  overlay.classList.remove('show');
+});
+
+btnShowConcluded.addEventListener('click', () => {
+  concludedTasksPopup.classList.add('show');
+  overlay.classList.add('show');
+  fillMobileConcludedList(); // Monta a lista de concluidos no popup
+});
+closeConcludedPopup.addEventListener('click', () => {
+  concludedTasksPopup.classList.remove('show');
+  overlay.classList.remove('show');
+});
+
+/* --- FUNÇÃO DE LISTAR TAREFAS --- */
 async function fetchTasks() {
   try {
     const response = await fetch('http://localhost:3000/tasks');
     const tasks = await response.json();
 
-    // Limpa as listas
+    // Limpa as listas do desktop
     pendingTasks.innerHTML = '';
     completedTasks.innerHTML = '';
 
-    // Insere cada tarefa em pending ou completed
+    // Preenche
     tasks.forEach(task => {
-      const listItem = createTaskCard(task);
+      const li = createTaskCard(task);
       if (task.completed) {
-        completedTasks.appendChild(listItem);
+        completedTasks.appendChild(li);
       } else {
-        pendingTasks.appendChild(listItem);
+        pendingTasks.appendChild(li);
       }
     });
   } catch (error) {
@@ -29,60 +63,63 @@ async function fetchTasks() {
   }
 }
 
-// Cria o card <li> para cada tarefa
+/* --- CRIA UM CARD <li> --- */
 function createTaskCard(task) {
-  const listItem = document.createElement('li');
-  listItem.textContent = task.title;
-  listItem.draggable = true;
+  const li = document.createElement('li');
+  li.draggable = true;
+  
+  // Se tiver cor, aplica
+  li.style.backgroundColor = task.color || '#f5f5f5';
 
-  // Se existir 'color' no task, aplica ao li
-  listItem.style.backgroundColor = task.color || '#f5f5f5';
+  // Conteúdo
+  // EX: Título e Descrição
+  const contentDiv = document.createElement('div');
+  contentDiv.style.flex = '1';
 
-  // Descrição
-  const desc = document.createElement('p');
-  desc.textContent = task.description;
-  desc.style.marginTop = '10px';
+  const titleEl = document.createElement('p');
+  titleEl.textContent = task.title;
+  const descEl = document.createElement('p');
+  descEl.textContent = task.description;
+
+  contentDiv.appendChild(titleEl);
+  contentDiv.appendChild(descEl);
 
   // Botão Excluir
-  const deleteButton = document.createElement('button');
-  deleteButton.textContent = 'Excluir';
-  deleteButton.classList.add('delete-btn');
-  deleteButton.addEventListener('click', async () => {
+  const deleteBtn = document.createElement('button');
+  deleteBtn.textContent = 'Excluir';
+  deleteBtn.classList.add('delete-btn');
+  deleteBtn.addEventListener('click', async () => {
     try {
       await fetch(`http://localhost:3000/tasks/${task._id}`, { method: 'DELETE' });
       fetchTasks();
-    } catch (error) {
-      console.error('Erro ao excluir tarefa:', error);
+    } catch (err) {
+      console.error('Erro ao excluir tarefa:', err);
     }
   });
 
-  listItem.appendChild(desc);
-  listItem.appendChild(deleteButton);
+  li.appendChild(contentDiv);
+  li.appendChild(deleteBtn);
 
   // Eventos de drag
-  listItem.addEventListener('dragstart', () => {
+  li.addEventListener('dragstart', () => {
     draggedTask = task;
-    listItem.classList.add('dragging');
+    li.classList.add('dragging');
   });
-
-  listItem.addEventListener('dragend', () => {
+  li.addEventListener('dragend', () => {
     draggedTask = null;
-    listItem.classList.remove('dragging');
+    li.classList.remove('dragging');
   });
 
-  return listItem;
+  return li;
 }
 
-// Para cada lista (pending e completed), adicionamos dragover e drop
+/* --- DRAG & DROP nas listas do Desktop --- */
 [pendingTasks, completedTasks].forEach(list => {
-  // Permite soltar dentro da lista
   list.addEventListener('dragover', e => {
     e.preventDefault();
-
     const afterElement = getDragAfterElement(list, e.clientY);
     const draggingItem = document.querySelector('.dragging');
-
-    // Se não houver elemento após, anexa no final
+    
     if (!afterElement) {
       list.appendChild(draggingItem);
     } else {
@@ -92,20 +129,17 @@ function createTaskCard(task) {
 
   list.addEventListener('drop', e => {
     e.preventDefault();
-    // Se for a lista 'completedTasks', definimos completed = true
     const isCompleted = (list === completedTasks);
     updateTaskCompletion(draggedTask, isCompleted);
   });
 });
 
-// Função para obter posição do item na lista
+/* --- FUNÇÃO QUE CALCULA A POSIÇÃO DE INSERIR O CARD --- */
 function getDragAfterElement(container, y) {
   const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
-
   return draggableElements.reduce((closest, child) => {
     const box = child.getBoundingClientRect();
-    const offset = y - box.top - (box.height / 2);
-
+    const offset = y - box.top - box.height / 2;
     if (offset < 0 && offset > closest.offset) {
       return { offset, element: child };
     } else {
@@ -114,62 +148,101 @@ function getDragAfterElement(container, y) {
   }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-// Atualiza a tarefa no banco (muda 'completed')
+/* --- ATUALIZA 'completed' NO BACKEND --- */
 async function updateTaskCompletion(task, completed) {
   if (!task) return;
-
   try {
     if (task.completed !== completed) {
-      const response = await fetch(`http://localhost:3000/tasks/${task._id}`, {
+      const res = await fetch(`http://localhost:3000/tasks/${task._id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ completed }),
+        body: JSON.stringify({ completed })
       });
-
-      if (response.ok) {
+      if (res.ok) {
         fetchTasks();
       } else {
         console.error('Erro ao atualizar tarefa.');
       }
     }
-  } catch (error) {
-    console.error('Erro ao atualizar tarefa:', error);
+  } catch (err) {
+    console.error('Erro ao atualizar tarefa:', err);
   }
 }
 
-// Cria uma nova tarefa com cor, título e descrição
-document.getElementById('taskForm').addEventListener('submit', async e => {
-  e.preventDefault();
+/* --- FORMULÁRIOS DESKTOP E MOBILE --- */
 
-  const title = document.getElementById('taskTitle').value;
-  const description = document.getElementById('taskDescription').value;
-  const color = document.getElementById('taskColor').value;
+// Desktop
+const taskFormDesktop = document.getElementById('taskFormDesktop');
+taskFormDesktop.addEventListener('submit', async e => {
+  e.preventDefault();
+  const title = document.getElementById('taskTitleDesktop').value;
+  const description = document.getElementById('taskDescriptionDesktop').value;
+  const color = document.getElementById('taskColorDesktop').value;
 
   try {
-    const response = await fetch('http://localhost:3000/tasks', {
+    const res = await fetch('http://localhost:3000/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        title, 
-        description,
-        color,
-        completed: false 
-      }),
+      body: JSON.stringify({ title, description, color, completed: false })
     });
-
-    if (response.ok) {
-      // Limpa o formulário
-      document.getElementById('taskTitle').value = '';
-      document.getElementById('taskDescription').value = '';
-      document.getElementById('taskColor').value = '#ffffff';
+    if (res.ok) {
+      taskFormDesktop.reset();
       fetchTasks();
     } else {
-      console.error('Erro ao adicionar tarefa.');
+      console.error('Erro ao criar tarefa.');
     }
   } catch (error) {
-    console.error('Erro:', error);
+    console.error('Erro no fetch:', error);
   }
 });
 
-// Ao carregar a página, busca as tarefas
+// Mobile
+const taskFormMobile = document.getElementById('taskFormMobile');
+taskFormMobile.addEventListener('submit', async e => {
+  e.preventDefault();
+  const title = document.getElementById('taskTitleMobile').value;
+  const description = document.getElementById('taskDescriptionMobile').value;
+  const color = document.getElementById('taskColorMobile').value;
+
+  try {
+    const res = await fetch('http://localhost:3000/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, description, color, completed: false })
+    });
+    if (res.ok) {
+      taskFormMobile.reset();
+      // continua com o popup aberto para inserir mais tarefas,
+      // conforme você pediu.  Se quiser fechar automaticamente, basta fechar aqui.
+      fetchTasks();
+    } else {
+      console.error('Erro ao criar tarefa (mobile).');
+    }
+  } catch (error) {
+    console.error('Erro no fetch (mobile):', error);
+  }
+});
+
+/* --- LISTA DE CONCLUÍDOS NO POPUP (MOBILE) --- */
+async function fillMobileConcludedList() {
+  try {
+    const res = await fetch('http://localhost:3000/tasks');
+    const tasks = await res.json();
+    const mobileCompletedList = document.getElementById('mobileCompletedList');
+    mobileCompletedList.innerHTML = '';
+
+    // Filtra só as completadas
+    const concluded = tasks.filter(t => t.completed);
+    concluded.forEach(task => {
+      const li = document.createElement('li');
+      li.textContent = task.title;
+      // se quiser a cor e descrição, acrescente
+      mobileCompletedList.appendChild(li);
+    });
+  } catch (err) {
+    console.error('Erro ao buscar tarefas concluídas:', err);
+  }
+}
+
+/* --- Ao carregar a página --- */
 document.addEventListener('DOMContentLoaded', fetchTasks);

@@ -1,15 +1,14 @@
 /* frontend/styles.css */
 
-/* Elimina margens padrão e scrollbar horizontal */
+/* --- RESET BÁSICO E BACKGROUND GERAL --- */
 html, body {
-    margin: 0;
+    margin: 0; 
     padding: 0;
-    overflow-x: hidden; /* some com a barra horizontal */
+    overflow-x: hidden; /* evita scrollbar horizontal */
     font-family: Arial, sans-serif;
     height: 100vh;
   }
   
-  /* Imagem de fundo em toda a tela */
   body {
     background: url("https://picsum.photos/id/1018/1920/1080") no-repeat center center fixed;
     background-size: cover;
@@ -18,107 +17,69 @@ html, body {
     align-items: center;
   }
   
-  /* Container principal */
+  /* --- CONTAINER DESKTOP: 3 COLUNAS LADO A LADO --- */
   .container {
     display: flex;
     width: 100%;
-    max-width: 1200px;
-    height: 90%;
+    max-width: 1600px; /* Se quiser permitir bem grande */
+    height: 95%;
+    box-sizing: border-box;
+    padding: 0 20px;
+    gap: 20px;
   }
   
-  /* Colunas de Tarefas e Concluídas: efeito “vidro” */
-  .tasks-column {
+  /* Cada coluna ~33% (se quiser exatos 33.333%) */
+  .tasks-column, .form-column {
     flex: 1;
-    margin: 10px;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0,0,0,0.3);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 10px;
     padding: 20px;
-  
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto; /* somente rolagem vertical */
-    position: relative; /* para z-index se precisar */
-  }
-  
-  /* Expande o UL para ocupar a coluna toda, evitando área “não dropável” */
-  .tasks-column ul {
-    flex: 1; 
-    /* se quiser no mínimo X altura: min-height: 400px; */
-    margin: 0;
-    padding: 0;
-  }
-  
-  /* Coluna do Formulário: transparente */
-  .form-column {
-    flex: 0.8;
-    margin: 10px;
-    background: transparent;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
     overflow-y: auto;
-    padding: 20px;
   }
   
-  /* Títulos em branco */
-  h1, h2 {
+  /* A coluna do formulário pode ter outro background ou ser transparente */
+  .form-column {
+    background: transparent;
+    backdrop-filter: none;
+  }
+  
+  .tasks-column h2,
+  .form-column h1 {
+    color: #fff;
     margin-bottom: 20px;
-    color: #fff;
   }
   
-  /* Formulário: espaçamento */
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  label {
-    color: #fff;
-    font-weight: bold;
-  }
-  
-  /* Inputs e botão */
-  input, textarea, button {
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: none;
-  }
-  
-  button {
-    cursor: pointer;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-  }
-  
-  /* Lista de tarefas */
-  ul {
+  /* Ajuste do UL */
+  .tasks-column ul {
     list-style-type: none;
+    padding: 0;
+    margin: 0;
   }
   
-  /* Card de tarefa (li) */
+  /* Cards de tarefa */
   li {
     margin: 10px 0;
     padding: 15px;
     border-radius: 8px;
+    background-color: #f5f5f5;
     cursor: grab;
-    background-color: #f5f5f5; /* Cor padrão (será substituída via JS se “color” != #fff) */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
   
-  /* No momento do arraste */
+  /* Exemplo: se você quiser a “faixa” de 20% para arrastar, pode criá-la com uma div interna. Mas aqui iremos só entender que todo li é “draggable”. */
+  
+  /* Estado de arraste */
   li.dragging {
-    opacity: 1;
     background-color: #bdc3c7;
+    opacity: 1;
   }
   
-  /* Botão Excluir */
+  /* Botão excluir */
   .delete-btn {
-    margin-top: 10px;
     background-color: #e74c3c;
     color: white;
     border: none;
@@ -129,5 +90,171 @@ html, body {
   }
   .delete-btn:hover {
     background-color: #c0392b;
+  }
+  
+  /* Formulário do desktop */
+  #taskFormDesktop input,
+  #taskFormDesktop textarea,
+  #taskFormDesktop button {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    margin-bottom: 10px;
+  }
+  #taskFormDesktop button {
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  /* --- BOTÕES E ESTILOS GERAIS --- */
+  button:hover {
+    opacity: 0.9;
+  }
+  
+  /* --- MOBILE --- */
+  @media screen and (max-width: 768px) {
+  
+    /* Some as colunas do formulário e a de concluidas */
+    #desktopForm,
+    #desktopCompleted {
+      display: none !important;
+    }
+  
+    /* Ocupa 100% com a coluna de tarefas */
+    #desktopPending {
+      flex: 1;
+      width: 100%;
+      margin: 0 0; 
+      border-radius: 0;
+      background: rgba(0,0,0,0.3);
+    }
+  
+    /* Container central não precisa side gap */
+    .container {
+      padding: 0;
+      gap: 0;
+      width: 100%;
+      height: 100%;
+      align-items: stretch;
+    }
+  
+    /* Mostra o botão “Adicionar Tarefa” do mobile */
+    .mobile-add-task-btn {
+      display: block;
+    }
+  
+    /* Mostra a barra inferior “Concluído” no mobile */
+    .mobile-concluded-bar {
+      display: flex;
+    }
+  }
+  
+  /* Por padrão, esses elementos aparecem só no mobile, então no desktop: hide */
+  .mobile-add-task-btn,
+  .mobile-concluded-bar {
+    display: none;
+  }
+  
+  /* Barra inferior que diz “Concluído” + botão ver concluídos */
+  .mobile-concluded-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+    color: #fff;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    z-index: 500;
+  }
+  
+  .mobile-concluded-bar button {
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 5px;
+    border: none;
+    padding: 8px 12px;
+  }
+  
+  /* Botão flutuante no topo direito para adicionar tarefa no mobile */
+  .mobile-add-task-btn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: #007bff;
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 5px;
+    border: none;
+    z-index: 500;
+  }
+  
+  /* --- POPUPS (Mobile) --- */
+  .popup {
+    display: none; /* hidden por padrão */
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Conteúdo do popup */
+  .popup-content {
+    background: #fff;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    padding: 20px;
+    position: relative;
+  }
+  
+  /* Botão de fechar “X” */
+  .popup-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    border: none;
+    background: transparent;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  
+  /* Form do popup (mobile) */
+  #taskFormMobile input,
+  #taskFormMobile textarea,
+  #taskFormMobile button {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  #taskFormMobile button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+  }
+  
+  /* Overlay preto 50% */
+  #overlay {
+    display: none; /* hidden por padrão */
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+  }
+  
+  /* Mostrar popup/overlay quando ativos */
+  .popup.show {
+    display: flex;
+  }
+  #overlay.show {
+    display: block;
   }
   
