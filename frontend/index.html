@@ -9,73 +9,35 @@
   <script src="script.js" defer></script>
 </head>
 <body>
-
-  <!-- Container principal (desktop) -->
   <div class="container">
-
-    <!-- Coluna de Tarefas -->
-    <div class="tasks-column" id="desktopPending">
+    
+    <!-- Coluna Esquerda: Tarefas -->
+    <div class="tasks-column">
       <h2>Tarefas</h2>
       <ul id="pendingTasks"></ul>
     </div>
 
-    <!-- Coluna do Formulário (visível só desktop) -->
-    <div class="form-column" id="desktopForm">
+    <!-- Coluna do Formulário (transparente) -->
+    <div class="form-column">
       <h1>Assistente de Produtividade</h1>
-      <form id="taskFormDesktop">
-        <input type="text" id="taskTitleDesktop" placeholder="Título da Tarefa" required />
-        <textarea id="taskDescriptionDesktop" placeholder="Descrição da Tarefa"></textarea>
-        <label for="taskColorDesktop">Cor do Card:</label>
-        <input type="color" id="taskColorDesktop" value="#ffffff" />
+      <form id="taskForm">
+        <input type="text" id="taskTitle" placeholder="Título da Tarefa" required />
+        <textarea id="taskDescription" placeholder="Descrição da Tarefa"></textarea>
+        
+        <!-- Campo para cor do card -->
+        <label for="taskColor">Cor do Card:</label>
+        <input type="color" id="taskColor" value="#ffffff" />
+
         <button type="submit">Adicionar Tarefa</button>
       </form>
     </div>
 
-    <!-- Coluna de Concluídas (desktop) -->
-    <div class="tasks-column" id="desktopCompleted">
+    <!-- Coluna Direita: Concluídas -->
+    <div class="tasks-column">
       <h2>Concluídas</h2>
       <ul id="completedTasks"></ul>
     </div>
 
   </div>
-
-  <!-- Barra inferior no MOBILE, para “Concluído” -->
-  <div class="mobile-concluded-bar">
-    <span>Concluído</span>
-    <button id="btnShowConcluded">Ver lista de concluídos</button>
-  </div>
-
-  <!-- Botão “Adicionar Tarefa” no MOBILE -->
-  <button class="mobile-add-task-btn" id="btnMobileAddTask">
-    Adicionar Tarefa
-  </button>
-
-  <!-- POPUP - Adicionar Tarefa (mobile) -->
-  <div id="addTaskPopup" class="popup">
-    <div class="popup-content">
-      <button class="popup-close" id="closeAddPopup">X</button>
-      <h2>Adicionar Tarefa</h2>
-      <form id="taskFormMobile">
-        <input type="text" id="taskTitleMobile" placeholder="Título da Tarefa" required />
-        <textarea id="taskDescriptionMobile" placeholder="Descrição da Tarefa"></textarea>
-        <label for="taskColorMobile">Cor do Card:</label>
-        <input type="color" id="taskColorMobile" value="#ffffff" />
-        <button type="submit">Adicionar</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- POPUP - Lista de Concluídos (mobile) -->
-  <div id="concludedTasksPopup" class="popup">
-    <div class="popup-content">
-      <button class="popup-close" id="closeConcludedPopup">X</button>
-      <h2>Minhas Tarefas Concluídas</h2>
-      <ul id="mobileCompletedList"></ul>
-    </div>
-  </div>
-
-  <!-- Overlay (fundo preto 50%) -->
-  <div id="overlay"></div>
-
 </body>
 </html>
