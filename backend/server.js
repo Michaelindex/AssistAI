@@ -2,42 +2,35 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-
-// IMPORTANTE: importar o modelo que já possui "completed"
-const Task = require('./models/Task');
+const Task = require('./models/Task'); // Importa o modelo já pronto
 
 const app = express();
 const PORT = 3000;
 const mongoURI = 'mongodb://127.0.0.1:27017/assistente_produtividade';
 
-// Sobe o servidor
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
 
-// Middlewares
 app.use(express.json());
 app.use(cors());
 
-// Conexão com MongoDB
+// Conecta ao MongoDB
 mongoose.connect(mongoURI)
   .then(() => console.log('Conectado ao MongoDB!'))
   .catch((error) => console.error('Erro ao conectar ao MongoDB:', error));
 
-/*--------------------------------------------------
- * Rotas 
- *--------------------------------------------------*/
-
 // [POST] Criar tarefa
 app.post('/tasks', async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, color } = req.body;
     const newTask = new Task({ 
       title, 
-      description, 
-      // completed: false --> se não mandar, pega o default do schema
+      description,
+      color
     });
     await newTask.save();
+
     res.status(201).json({ message: 'Tarefa adicionada com sucesso!' });
   } catch (error) {
     console.error('Erro ao salvar tarefa:', error);
@@ -48,7 +41,7 @@ app.post('/tasks', async (req, res) => {
 // [GET] Listar tarefas
 app.get('/tasks', async (req, res) => {
   try {
-    const tasks = await Task.find(); // Pega todas as tarefas
+    const tasks = await Task.find();
     res.status(200).json(tasks);
   } catch (error) {
     console.error('Erro ao buscar tarefas:', error);
@@ -68,13 +61,16 @@ app.delete('/tasks/:id', async (req, res) => {
   }
 });
 
-// [PATCH] Atualizar 'completed' de uma tarefa
+// [PATCH] Atualizar 'completed'
 app.patch('/tasks/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { completed } = req.body;
-    // Aqui atualiza só o campo "completed"
-    const task = await Task.findByIdAndUpdate(id, { completed }, { new: true });
+    const task = await Task.findByIdAndUpdate(
+      id,
+      { completed },
+      { new: true }
+    );
     if (!task) {
       return res.status(404).json({ error: 'Tarefa não encontrada' });
     }

@@ -2,22 +2,21 @@
 
 let draggedTask = null;
 
-// Referência para os UL
 const pendingTasks = document.getElementById('pendingTasks');
 const completedTasks = document.getElementById('completedTasks');
 
-// Buscar tarefas do servidor
+// Carrega tarefas do backend
 async function fetchTasks() {
   try {
     const response = await fetch('http://localhost:3000/tasks');
     const tasks = await response.json();
 
-    // Limpar as listas
+    // Limpa as listas
     pendingTasks.innerHTML = '';
     completedTasks.innerHTML = '';
 
-    // Inserir tarefas
-    tasks.forEach((task) => {
+    // Insere cada tarefa em pending ou completed
+    tasks.forEach(task => {
       const listItem = createTaskCard(task);
       if (task.completed) {
         completedTasks.appendChild(listItem);
@@ -30,17 +29,21 @@ async function fetchTasks() {
   }
 }
 
-// Cria um <li> para cada tarefa
+// Cria o card <li> para cada tarefa
 function createTaskCard(task) {
   const listItem = document.createElement('li');
   listItem.textContent = task.title;
   listItem.draggable = true;
 
-  // Descrição
-  const description = document.createElement('p');
-  description.textContent = task.description;
+  // Se existir 'color' no task, aplica ao li
+  listItem.style.backgroundColor = task.color || '#f5f5f5';
 
-  // Botão de excluir
+  // Descrição
+  const desc = document.createElement('p');
+  desc.textContent = task.description;
+  desc.style.marginTop = '10px';
+
+  // Botão Excluir
   const deleteButton = document.createElement('button');
   deleteButton.textContent = 'Excluir';
   deleteButton.classList.add('delete-btn');
@@ -53,10 +56,10 @@ function createTaskCard(task) {
     }
   });
 
-  listItem.appendChild(description);
+  listItem.appendChild(desc);
   listItem.appendChild(deleteButton);
 
-  // Eventos de arrastar
+  // Eventos de drag
   listItem.addEventListener('dragstart', () => {
     draggedTask = task;
     listItem.classList.add('dragging');
@@ -70,12 +73,16 @@ function createTaskCard(task) {
   return listItem;
 }
 
-// Adicionar dragover e drop em ambas as listas
-[pendingTasks, completedTasks].forEach((list) => {
-  list.addEventListener('dragover', (e) => {
+// Para cada lista (pending e completed), adicionamos dragover e drop
+[pendingTasks, completedTasks].forEach(list => {
+  // Permite soltar dentro da lista
+  list.addEventListener('dragover', e => {
     e.preventDefault();
+
     const afterElement = getDragAfterElement(list, e.clientY);
     const draggingItem = document.querySelector('.dragging');
+
+    // Se não houver elemento após, anexa no final
     if (!afterElement) {
       list.appendChild(draggingItem);
     } else {
@@ -83,32 +90,31 @@ function createTaskCard(task) {
     }
   });
 
-  list.addEventListener('drop', (e) => {
+  list.addEventListener('drop', e => {
     e.preventDefault();
-    // Se a coluna for a de concluídas, completed = true, senão = false
-    const isCompletedColumn = list === completedTasks;
-    updateTaskCompletion(draggedTask, isCompletedColumn);
+    // Se for a lista 'completedTasks', definimos completed = true
+    const isCompleted = (list === completedTasks);
+    updateTaskCompletion(draggedTask, isCompleted);
   });
 });
 
-// Função para calcular posição do item enquanto arrasta
+// Função para obter posição do item na lista
 function getDragAfterElement(container, y) {
   const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
-  return draggableElements.reduce(
-    (closest, child) => {
-      const box = child.getBoundingClientRect();
-      const offset = y - box.top - box.height / 2;
-      if (offset < 0 && offset > closest.offset) {
-        return { offset, element: child };
-      } else {
-        return closest;
-      }
-    },
-    { offset: Number.NEGATIVE_INFINITY }
-  ).element;
+
+  return draggableElements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - (box.height / 2);
+
+    if (offset < 0 && offset > closest.offset) {
+      return { offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-// Atualiza "completed" no banco via PATCH
+// Atualiza a tarefa no banco (muda 'completed')
 async function updateTaskCompletion(task, completed) {
   if (!task) return;
 
@@ -119,6 +125,7 @@ async function updateTaskCompletion(task, completed) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ completed }),
       });
+
       if (response.ok) {
         fetchTasks();
       } else {
@@ -130,12 +137,13 @@ async function updateTaskCompletion(task, completed) {
   }
 }
 
-// Criação de novas tarefas
-document.getElementById('taskForm').addEventListener('submit', async (e) => {
+// Cria uma nova tarefa com cor, título e descrição
+document.getElementById('taskForm').addEventListener('submit', async e => {
   e.preventDefault();
 
   const title = document.getElementById('taskTitle').value;
   const description = document.getElementById('taskDescription').value;
+  const color = document.getElementById('taskColor').value;
 
   try {
     const response = await fetch('http://localhost:3000/tasks', {
@@ -144,14 +152,16 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
       body: JSON.stringify({ 
         title, 
         description,
-        completed: false, 
+        color,
+        completed: false 
       }),
     });
 
     if (response.ok) {
-      // Limpar os campos
+      // Limpa o formulário
       document.getElementById('taskTitle').value = '';
       document.getElementById('taskDescription').value = '';
+      document.getElementById('taskColor').value = '#ffffff';
       fetchTasks();
     } else {
       console.error('Erro ao adicionar tarefa.');
@@ -161,5 +171,5 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
   }
 });
 
-// Buscar tarefas quando a página carrega
+// Ao carregar a página, busca as tarefas
 document.addEventListener('DOMContentLoaded', fetchTasks);
